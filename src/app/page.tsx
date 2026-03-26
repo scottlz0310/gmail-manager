@@ -1,14 +1,25 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { createBrowserClient } from "@/lib/supabase/client";
 
 export default function Home() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const supabase = createBrowserClient();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) router.replace("/dashboard");
+    });
+  }, [router]);
+
   const handleLogin = async () => {
     const supabase = createBrowserClient();
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        scopes: "https://www.googleapis.com/auth/gmail.modify",
+        scopes: "https://mail.google.com/",
         queryParams: {
           access_type: "offline",
           prompt: "consent",
