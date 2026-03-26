@@ -15,9 +15,21 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const providerToken = session.provider_token;
+  if (!providerToken) {
+    return NextResponse.json(
+      {
+        error: "Unauthorized",
+        message:
+          "OAuth provider token is missing or expired. Please reconnect your email account.",
+      },
+      { status: 401 },
+    );
+  }
+
   const body = (await request.json()) as MailQuery;
 
-  const mailService = new GmailMailService(session.provider_token!);
+  const mailService = new GmailMailService(providerToken);
   const messageRepository = new SupabaseMessageRepository();
   const useCase = new DeleteOldMailsUseCase(mailService, messageRepository);
 

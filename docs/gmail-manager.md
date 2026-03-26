@@ -203,7 +203,7 @@ interface MailService {
 1. ブラウザで WebUI を開く
 2. 「Googleでログイン」ボタン → Supabase Auth が Google OAuth を開始
 3. Google 同意画面（gmail.modify スコープを含む）
-4. /app/api/auth/callback でコールバック受信
+4. /api/auth/callback でコールバック受信（exchangeCodeForSession を実行しセッション確立）
 5. Supabase Auth がトークン管理（リフレッシュ自動）
 6. バックエンドAPIは Supabase セッションから accessToken を取得して Gmail API へ渡す
 ```
@@ -224,7 +224,7 @@ https://www.googleapis.com/auth/gmail.modify
 
 - Supabase Auth 単体ではなく、Google Cloud Console 側の設定も必須
 - accessToken をバックエンドで受け取り Gmail API に渡す実装が別途必要（「丸投げ」にはならない）
-- ローカル開発時は `http://localhost:3000/auth/callback` をリダイレクトURIに登録
+- ローカル開発時は `http://localhost:3000/api/auth/callback` をリダイレクトURIに登録
 
 ---
 

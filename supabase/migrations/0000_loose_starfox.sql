@@ -13,3 +13,11 @@ CREATE TABLE "sync_state" (
 	"value" text NOT NULL,
 	"updated_at" timestamp with time zone
 );
+--> statement-breakpoint
+ALTER TABLE "messages" ENABLE ROW LEVEL SECURITY;
+--> statement-breakpoint
+ALTER TABLE "sync_state" ENABLE ROW LEVEL SECURITY;
+--> statement-breakpoint
+REVOKE ALL ON TABLE "messages" FROM PUBLIC;
+--> statement-breakpoint
+REVOKE ALL ON TABLE "sync_state" FROM PUBLIC;
