@@ -7,7 +7,7 @@
     "start": "bun run src/index.ts"
   },
   "dependencies": {
-    "hono": "^4.12.7",
+    "hono": "^4.12.9",
     "googleapis": "^148.0.0",
     "drizzle-orm": "^0.41.0"
   },
