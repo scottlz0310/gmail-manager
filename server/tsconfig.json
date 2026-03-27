@@ -5,6 +5,12 @@
     "moduleResolution": "bundler",
     "strict": true,
     "skipLibCheck": true,
-    "types": ["bun-types"]
+    "types": ["bun-types"],
+    "typeRoots": [
+      "./node_modules/@types",
+      "./node_modules",
+      "../node_modules/@types",
+      "../node_modules"
+    ]
   }
 }
