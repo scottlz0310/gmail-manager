@@ -31,7 +31,7 @@
       "dependencies": {
         "drizzle-orm": "^0.41.0",
         "googleapis": "^148.0.0",
-        "hono": "^4.12.7",
+        "hono": "^4.12.9",
       },
       "devDependencies": {
         "bun-types": "latest",
