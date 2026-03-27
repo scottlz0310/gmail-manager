@@ -12,8 +12,8 @@
     "prepare": "lefthook install"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
+    "@biomejs/biome": "^2.4.9",
     "concurrently": "^9.1.2",
-    "lefthook": "^1.11.16"
+    "lefthook": "^2.1.4"
   }
 }
