@@ -7,23 +7,23 @@
       "devDependencies": {
         "@biomejs/biome": "^1.9.4",
         "concurrently": "^9.1.2",
-        "lefthook": "^1.11.5",
+        "lefthook": "^1.11.16",
       },
     },
     "client": {
       "name": "gmail-manager-client",
       "dependencies": {
-        "react": "^19.0.0",
-        "react-dom": "^19.0.0",
+        "react": "^19.0.4",
+        "react-dom": "^19.0.4",
       },
       "devDependencies": {
-        "@tailwindcss/vite": "^4.0.0",
-        "@types/react": "^19.0.0",
-        "@types/react-dom": "^19.0.0",
+        "@tailwindcss/vite": "^4.0.17",
+        "@types/react": "^19.0.14",
+        "@types/react-dom": "^19.0.6",
         "@vitejs/plugin-react": "^4.3.4",
-        "tailwindcss": "^4.0.0",
-        "typescript": "^5.7.2",
-        "vite": "^6.2.0",
+        "tailwindcss": "^4.0.17",
+        "typescript": "^5.7.3",
+        "vite": "^6.2.7",
       },
     },
     "server": {
@@ -31,10 +31,10 @@
       "dependencies": {
         "drizzle-orm": "^0.41.0",
         "googleapis": "^148.0.0",
-        "hono": "^4.7.5",
+        "hono": "^4.7.11",
       },
       "devDependencies": {
-        "@types/bun": "latest",
+        "bun-types": "latest",
       },
     },
   },
@@ -246,8 +246,6 @@
     "@types/babel__template": ["@types/babel__template@7.4.4", "", { "dependencies": { "@babel/parser": "^7.1.0", "@babel/types": "^7.0.0" } }, "sha512-h/NUaSyG5EyxBIp8YRxo4RMe2/qQgvyowRwVMzhYhBCONbW8PUsg4lkFMrhgZhUe5z3L3MiLDuvyJ/CaPa2A8A=="],
 
     "@types/babel__traverse": ["@types/babel__traverse@7.28.0", "", { "dependencies": { "@babel/types": "^7.28.2" } }, "sha512-8PvcXf70gTDZBgt9ptxJ8elBeBjcLOAcOtoO/mPJjtji1+CdGbHgm77om1GrsPxsiE+uXIpNSK64UYaIwQXd4Q=="],
-
-    "@types/bun": ["@types/bun@1.3.11", "", { "dependencies": { "bun-types": "1.3.11" } }, "sha512-5vPne5QvtpjGpsGYXiFyycfpDF2ECyPcTSsFBMa0fraoxiQyMJ3SmuQIGhzPg2WJuWxVBoxWJ2kClYTcw/4fAg=="],
 
     "@types/estree": ["@types/estree@1.0.8", "", {}, "sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w=="],
 
