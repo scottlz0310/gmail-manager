@@ -1,0 +1,17 @@
+{
+  "name": "gmail-manager-server",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --hot src/index.ts",
+    "start": "bun run src/index.ts"
+  },
+  "dependencies": {
+    "hono": "^4.7.5",
+    "googleapis": "^148.0.0",
+    "drizzle-orm": "^0.41.0"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  }
+}

@@ -1,29 +1,29 @@
 # Changelog
 
-## [Unreleased]
+## [0.2.0] - 2026-03-27
+
+### Changed
+
+- **アーキテクチャを全面刷新**（Next.js/Supabase → Hono + Bun + Vite + SQLite）
+  - Docker 不要・`bun install` だけで起動できるローカルツールに最適化
+  - 4層アーキテクチャ（UseCase / Service / Repository / Adapter）を廃止し、2層（GmailService / JobRunner）に簡素化
+  - Supabase Auth を廃止し、Google OAuth を `googleapis` で直実装
+  - PostgreSQL + Supabase Realtime を廃止し、SQLite（bun:sqlite）+ SSE に置き換え
 
 ### Added
 
-- **`src/app/dashboard/`**: ログイン後のダッシュボードページを追加（ユーザーメール表示・ログアウトボタン）
-- **`src/app/LoginButton.tsx`**: ログインボタンを Client Component として分離（`signInWithOAuth` エラーハンドリング追加）
+- **`server/src/services/JobRunner.ts`**: chunk 分割・進捗管理・SSE 通知・DB 記録を一元管理
+- **`server/src/routes/jobs.ts`**: `GET /api/jobs/:id/stream` SSE エンドポイント（削除進捗をリアルタイム push）
+- **`server/src/db/index.ts`**: 起動時に `CREATE TABLE IF NOT EXISTS` でテーブル自動作成（マイグレーション不要）
+- **`client/src/components/DeleteProgress.tsx`**: SSE で進捗バーをリアルタイム更新
+- 削除完了画面に実行時間（秒）・処理速度（件/秒）を表示
+- Biome（lint / format）・lefthook（pre-commit フック）・GitHub Actions（CI / Release）を追加
 
 ### Fixed
 
-- **`src/app/page.tsx`**: Server Component 化してサーバ側でセッション判定し `redirect('/dashboard')` に変更（クライアント側ちらつき解消）
-- **`src/app/LoginButton.tsx`**: OAuth スコープを `gmail.modify` から `https://mail.google.com/` に変更（`batchDelete` に必要な権限を付与）
-- **`src/app/api/auth/callback/route.ts`**: ログイン成功後のリダイレクト先を `/` から `/dashboard` に変更
-- **`src/app/dashboard/LogoutButton.tsx`**: `signOut` のエラーハンドリングと loading 状態を追加、`type="button"` を明示
-
-- **`src/app/LoginButton.tsx`**: `redirectTo` をハードコードから `${location.origin}/api/auth/callback` に変更し、OAuth コールバック URL を統一
-- **`src/app/auth/callback/page.tsx`**: `onAuthStateChange` のリスナーが unsubscribe されない問題を修正（`useEffect` の cleanup 関数で `subscription.unsubscribe()` を呼ぶよう変更）
-- **`src/app/auth/callback/page.tsx`**: `SIGNED_IN` イベント待機前に `getSession()` で既存セッションを確認するよう修正（コールバックページで停止するケースを防止）
-- **`src/app/api/mails/search/route.ts`**: `session.provider_token!` の非 null アサーションを削除し、token が存在しない場合は 401 を返すよう修正
-- **`src/app/api/mails/delete/route.ts`**: `session.provider_token!` の非 null アサーションを削除し、token が存在しない場合は 401 とメッセージを返すよう修正
-- **`src/app/api/auth/callback/route.ts`**: cookie 設定ロジックの重複を解消し、`createSupabaseServerClient` ヘルパーを再利用するよう変更
-- **`supabase/config.toml`**: `site_url` を `http://localhost:3000` に統一し、`additional_redirect_urls` を `http://localhost:3000/api/auth/callback` に修正（Supabase の exact match 要件に対応）
-- **`supabase/migrations/0000_loose_starfox.sql`**: `messages` / `sync_state` テーブルに RLS を有効化し、PUBLIC 権限を明示的に剥奪するよう追加
-- **`src/lib/db/index.ts`**: `globalThis` を用いたシングルトンパターンで DB クライアントをキャッシュし、HMR 時のコネクション枯渇を防止
-- **`docs/gmail-manager.md`**: OAuth コールバック URL の記載を `/api/auth/callback` に統一
+- Bun のデフォルト `idleTimeout`（10秒）による SSE 切断を `idleTimeout: 0` で解消
+- `/api/auth/me` が `https://mail.google.com/` スコープのみでは Google userinfo API に 401 を返す問題を修正（`email` スコープ追加・`id_token` からメールアドレスを取得）
+- SSE `done` イベントに `durationMs` が含まれていなかった問題を修正
 
 ## [0.1.0] - 2026-03-26
 
