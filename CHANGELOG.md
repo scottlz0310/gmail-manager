@@ -2,9 +2,19 @@
 
 ## [Unreleased]
 
+### Added
+
+- **`src/app/dashboard/`**: ログイン後のダッシュボードページを追加（ユーザーメール表示・ログアウトボタン）
+- **`src/app/LoginButton.tsx`**: ログインボタンを Client Component として分離（`signInWithOAuth` エラーハンドリング追加）
+
 ### Fixed
 
-- **`src/app/page.tsx`**: `redirectTo` をハードコードから `${location.origin}/api/auth/callback` に変更し、OAuth コールバック URL を統一
+- **`src/app/page.tsx`**: Server Component 化してサーバ側でセッション判定し `redirect('/dashboard')` に変更（クライアント側ちらつき解消）
+- **`src/app/LoginButton.tsx`**: OAuth スコープを `gmail.modify` から `https://mail.google.com/` に変更（`batchDelete` に必要な権限を付与）
+- **`src/app/api/auth/callback/route.ts`**: ログイン成功後のリダイレクト先を `/` から `/dashboard` に変更
+- **`src/app/dashboard/LogoutButton.tsx`**: `signOut` のエラーハンドリングと loading 状態を追加、`type="button"` を明示
+
+- **`src/app/LoginButton.tsx`**: `redirectTo` をハードコードから `${location.origin}/api/auth/callback` に変更し、OAuth コールバック URL を統一
 - **`src/app/auth/callback/page.tsx`**: `onAuthStateChange` のリスナーが unsubscribe されない問題を修正（`useEffect` の cleanup 関数で `subscription.unsubscribe()` を呼ぶよう変更）
 - **`src/app/auth/callback/page.tsx`**: `SIGNED_IN` イベント待機前に `getSession()` で既存セッションを確認するよう修正（コールバックページで停止するケースを防止）
 - **`src/app/api/mails/search/route.ts`**: `session.provider_token!` の非 null アサーションを削除し、token が存在しない場合は 401 を返すよう修正
