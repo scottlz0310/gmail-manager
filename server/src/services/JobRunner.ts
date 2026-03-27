@@ -38,7 +38,7 @@ export function subscribeJob(id: string, listener: (event: JobEvent) => void): (
   job.listeners.add(listener);
   // 既に完了済みなら即時通知
   if (job.status === "done") {
-    listener({ type: "done", done: job.done, total: job.total, failed: job.failed });
+    listener({ type: "done", done: job.done, total: job.total, failed: job.failed, durationMs: job.durationMs ?? 0 });
   } else if (job.status === "failed") {
     listener({ type: "error", message: job.error ?? "unknown error" });
   }

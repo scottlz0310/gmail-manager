@@ -136,10 +136,12 @@ export default function Dashboard({ email, onLogout }: Props) {
                 <>　/ 失敗: <span className="font-medium text-red-500">{phase.failed} 件</span></>
               )}
             </p>
-            <p className="text-sm text-gray-400">
-              実行時間: {(phase.durationMs / 1000).toFixed(1)} 秒
-              （{Math.round(phase.done / (phase.durationMs / 1000))} 件/秒）
-            </p>
+            {phase.durationMs > 0 && (
+              <p className="text-sm text-gray-400">
+                実行時間: {(phase.durationMs / 1000).toFixed(1)} 秒
+                （{Math.round(phase.done / (phase.durationMs / 1000))} 件/秒）
+              </p>
+            )}
             <button
               type="button"
               onClick={() => setPhase({ type: "idle" })}
