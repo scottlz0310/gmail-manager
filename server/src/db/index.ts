@@ -33,6 +33,7 @@ sqlite.exec(`
 
   CREATE TABLE IF NOT EXISTS sessions (
     id            TEXT PRIMARY KEY,
+    email         TEXT,
     access_token  TEXT NOT NULL,
     refresh_token TEXT,
     expires_at    INTEGER,

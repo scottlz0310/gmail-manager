@@ -16,13 +16,26 @@ function getOAuth2Client() {
   );
 }
 
+// id_token (JWT) のペイロードをデコードしてメールアドレスを取得
+function extractEmailFromIdToken(idToken: string): string | null {
+  try {
+    const payload = idToken.split(".")[1];
+    const decoded = Buffer.from(payload, "base64url").toString("utf-8");
+    const claims = JSON.parse(decoded) as { email?: string };
+    return claims.email ?? null;
+  } catch {
+    return null;
+  }
+}
+
 // GET /api/auth/google → Google 同意画面へリダイレクト
 app.get("/google", (c) => {
   const oauth2 = getOAuth2Client();
   const url = oauth2.generateAuthUrl({
     access_type: "offline",
     prompt: "consent",
-    scope: ["https://mail.google.com/"],
+    // email スコープを追加してメールアドレスを id_token に含める
+    scope: ["https://mail.google.com/", "email"],
   });
   return c.redirect(url);
 });
@@ -39,9 +52,13 @@ app.get("/callback", async (c) => {
     return c.json({ error: "failed to get access token" }, 500);
   }
 
+  // id_token からメールアドレスを取得（Google への追加リクエスト不要）
+  const email = tokens.id_token ? extractEmailFromIdToken(tokens.id_token) : null;
+
   const sessionId = randomUUID();
   await db.insert(sessions).values({
     id: sessionId,
+    email,
     accessToken: tokens.access_token,
     refreshToken: tokens.refresh_token ?? null,
     expiresAt: tokens.expiry_date ? Math.floor(tokens.expiry_date / 1000) : null,
@@ -68,18 +85,11 @@ app.post("/logout", async (c) => {
   return c.json({ ok: true });
 });
 
-// GET /api/auth/me → ログイン状態確認
-app.get("/me", async (c) => {
-  const session = c.get("session") as { id: string; accessToken: string } | undefined;
+// GET /api/auth/me → ログイン状態確認（DB から返すだけ、Google API 呼び出しなし）
+app.get("/me", (c) => {
+  const session = c.get("session") as { email?: string | null } | undefined;
   if (!session) return c.json({ loggedIn: false });
-
-  // アクセストークンで Google のメールアドレスを取得
-  const oauth2 = getOAuth2Client();
-  oauth2.setCredentials({ access_token: session.accessToken });
-  const userinfo = google.oauth2({ version: "v2", auth: oauth2 });
-  const { data } = await userinfo.userinfo.get();
-
-  return c.json({ loggedIn: true, email: data.email });
+  return c.json({ loggedIn: true, email: session.email ?? null });
 });
 
 export default app;

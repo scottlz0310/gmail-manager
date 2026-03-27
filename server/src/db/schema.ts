@@ -18,6 +18,7 @@ export const syncState = sqliteTable("sync_state", {
 
 export const sessions = sqliteTable("sessions", {
   id: text("id").primaryKey(), // Cookie 値
+  email: text("email"),
   accessToken: text("access_token").notNull(),
   refreshToken: text("refresh_token"),
   expiresAt: integer("expires_at"), // Unix timestamp
