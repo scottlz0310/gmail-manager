@@ -55,7 +55,7 @@ export class GmailService {
         this.gmail.users.messages.list({ userId: "me", q, maxResults: 500, pageToken })
       );
       const messages = res.data.messages ?? [];
-      ids.push(...messages.map((m) => m.id!));
+      ids.push(...messages.flatMap((m) => (m.id ? [m.id] : [])));
       pageToken = res.data.nextPageToken ?? undefined;
     } while (pageToken);
 

@@ -1,8 +1,8 @@
-import { drizzle } from "drizzle-orm/bun-sqlite";
 import { Database } from "bun:sqlite";
+import { mkdirSync } from "node:fs";
+import { resolve } from "node:path";
+import { drizzle } from "drizzle-orm/bun-sqlite";
 import * as schema from "./schema";
-import { resolve } from "path";
-import { mkdirSync } from "fs";
 
 const DATA_DIR = resolve(import.meta.dir, "../../../data");
 const DB_PATH = resolve(DATA_DIR, "gmail-manager.db");

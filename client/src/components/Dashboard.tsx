@@ -1,6 +1,6 @@
 import { useState } from "react";
-import SearchForm, { type SearchParams } from "./SearchForm";
 import DeleteProgress from "./DeleteProgress";
+import SearchForm, { type SearchParams } from "./SearchForm";
 
 interface Props {
   email: string;
@@ -29,7 +29,7 @@ export default function Dashboard({ email, onLogout }: Props) {
     const data = await res.json();
     if (!res.ok) {
       setPhase({ type: "idle" });
-      alert("検索に失敗しました: " + data.error);
+      alert(`検索に失敗しました: ${data.error}`);
       return;
     }
     setPhase({ type: "preview", count: data.count, ids: data.ids, query: params });
@@ -44,7 +44,7 @@ export default function Dashboard({ email, onLogout }: Props) {
     });
     const data = await res.json();
     if (!res.ok) {
-      alert("削除ジョブの開始に失敗しました: " + data.error);
+      alert(`削除ジョブの開始に失敗しました: ${data.error}`);
       return;
     }
     setPhase({ type: "deleting", jobId: data.jobId, total: ids.length });
@@ -89,7 +89,8 @@ export default function Dashboard({ email, onLogout }: Props) {
         {phase.type === "preview" && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col gap-4">
             <p className="text-gray-700">
-              <span className="font-semibold text-xl text-gray-900">{phase.count}</span> 件が検索条件に一致しました。
+              <span className="font-semibold text-xl text-gray-900">{phase.count}</span>{" "}
+              件が検索条件に一致しました。
             </p>
             {phase.count === 0 ? (
               <p className="text-sm text-gray-400">削除対象のメールがありません。</p>
@@ -123,7 +124,9 @@ export default function Dashboard({ email, onLogout }: Props) {
           <DeleteProgress
             jobId={phase.jobId}
             total={phase.total}
-            onDone={(done, failed, durationMs) => setPhase({ type: "done", done, failed, durationMs })}
+            onDone={(done, failed, durationMs) =>
+              setPhase({ type: "done", done, failed, durationMs })
+            }
           />
         )}
 
@@ -133,13 +136,15 @@ export default function Dashboard({ email, onLogout }: Props) {
             <p className="text-sm text-gray-600">
               削除成功: <span className="font-medium text-green-600">{phase.done} 件</span>
               {phase.failed > 0 && (
-                <>　/ 失敗: <span className="font-medium text-red-500">{phase.failed} 件</span></>
+                <>
+                  　/ 失敗: <span className="font-medium text-red-500">{phase.failed} 件</span>
+                </>
               )}
             </p>
             {phase.durationMs > 0 && (
               <p className="text-sm text-gray-400">
-                実行時間: {(phase.durationMs / 1000).toFixed(1)} 秒
-                （{Math.round(phase.done / (phase.durationMs / 1000))} 件/秒）
+                実行時間: {(phase.durationMs / 1000).toFixed(1)} 秒 （
+                {Math.round(phase.done / (phase.durationMs / 1000))} 件/秒）
               </p>
             )}
             <button

@@ -60,9 +60,7 @@ export default function DeleteProgress({ jobId, total, onDone }: Props) {
           </div>
           <p className="text-sm text-gray-600 text-right">
             {done} / {total} 件
-            {failed > 0 && (
-              <span className="ml-2 text-red-500">（失敗: {failed} 件）</span>
-            )}
+            {failed > 0 && <span className="ml-2 text-red-500">（失敗: {failed} 件）</span>}
           </p>
         </>
       )}

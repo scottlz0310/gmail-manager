@@ -3,8 +3,8 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { sessionMiddleware } from "./middleware/session";
 import authRoutes from "./routes/auth";
-import mailsRoutes from "./routes/mails";
 import jobsRoutes from "./routes/jobs";
+import mailsRoutes from "./routes/mails";
 
 const app = new Hono();
 

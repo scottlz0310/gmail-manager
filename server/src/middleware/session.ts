@@ -1,8 +1,8 @@
+import { eq } from "drizzle-orm";
+import { deleteCookie, getCookie } from "hono/cookie";
 import { createMiddleware } from "hono/factory";
-import { getCookie, deleteCookie } from "hono/cookie";
 import { db } from "../db";
 import { sessions } from "../db/schema";
-import { eq } from "drizzle-orm";
 
 export const sessionMiddleware = createMiddleware(async (c, next) => {
   const sessionId = getCookie(c, "session_id");

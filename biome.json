@@ -25,12 +25,6 @@
     }
   },
   "files": {
-    "ignore": [
-      "node_modules",
-      "**/node_modules",
-      "client/dist",
-      "data",
-      "bun.lock"
-    ]
+    "ignore": ["node_modules", "**/node_modules", "client/dist", "data", "bun.lock"]
   }
 }

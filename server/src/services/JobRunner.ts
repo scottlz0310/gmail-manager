@@ -1,6 +1,6 @@
+import { sql } from "drizzle-orm";
 import { db } from "../db";
 import { messages } from "../db/schema";
-import { sql } from "drizzle-orm";
 import { GmailService, type MailQuery } from "./GmailService";
 
 const CHUNK_SIZE = 500;
@@ -39,12 +39,18 @@ export function subscribeJob(id: string, listener: (event: JobEvent) => void): (
   // 既に完了済みなら即時通知
   if (job.status === "done") {
     Promise.resolve(
-      listener({ type: "done", done: job.done, total: job.total, failed: job.failed, durationMs: job.durationMs ?? 0 })
+      listener({
+        type: "done",
+        done: job.done,
+        total: job.total,
+        failed: job.failed,
+        durationMs: job.durationMs ?? 0,
+      })
     ).catch((err) => console.error(JSON.stringify({ action: "emit", error: String(err) })));
   } else if (job.status === "failed") {
-    Promise.resolve(
-      listener({ type: "error", message: job.error ?? "unknown error" })
-    ).catch((err) => console.error(JSON.stringify({ action: "emit", error: String(err) })));
+    Promise.resolve(listener({ type: "error", message: job.error ?? "unknown error" })).catch(
+      (err) => console.error(JSON.stringify({ action: "emit", error: String(err) }))
+    );
   }
   return () => job.listeners.delete(listener);
 }
@@ -66,7 +72,11 @@ function scheduleCleanup(job: Job) {
   }, JOB_TTL_MS);
 }
 
-export async function startJob(jobId: string, accessToken: string, query: MailQuery): Promise<void> {
+export async function startJob(
+  jobId: string,
+  accessToken: string,
+  query: MailQuery
+): Promise<void> {
   const job: Job = {
     id: jobId,
     status: "pending",
@@ -102,30 +112,36 @@ async function runJob(job: Job, accessToken: string, query: MailQuery): Promise<
       await gmail.batchDelete(chunk);
       await db
         .insert(messages)
-        .values(chunk.map((id) => ({
-          id,
-          status: "deleted" as const,
-          action: "batchDelete",
-          processedAt: new Date(),
-        })))
+        .values(
+          chunk.map((id) => ({
+            id,
+            status: "deleted" as const,
+            action: "batchDelete",
+            processedAt: new Date(),
+          }))
+        )
         .onConflictDoUpdate({
           target: messages.id,
           set: { status: "deleted", action: "batchDelete", processedAt: new Date() },
         });
 
       job.done += chunk.length;
-      console.log(JSON.stringify({ action: "batchDelete", count: chunk.length, status: "success" }));
+      console.log(
+        JSON.stringify({ action: "batchDelete", count: chunk.length, status: "success" })
+      );
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
       await db
         .insert(messages)
-        .values(chunk.map((id) => ({
-          id,
-          status: "failed" as const,
-          action: "batchDelete",
-          errorMessage,
-          processedAt: new Date(),
-        })))
+        .values(
+          chunk.map((id) => ({
+            id,
+            status: "failed" as const,
+            action: "batchDelete",
+            errorMessage,
+            processedAt: new Date(),
+          }))
+        )
         .onConflictDoUpdate({
           target: messages.id,
           set: {
@@ -137,7 +153,14 @@ async function runJob(job: Job, accessToken: string, query: MailQuery): Promise<
         });
 
       job.failed += chunk.length;
-      console.error(JSON.stringify({ action: "batchDelete", count: chunk.length, status: "failed", error: errorMessage }));
+      console.error(
+        JSON.stringify({
+          action: "batchDelete",
+          count: chunk.length,
+          status: "failed",
+          error: errorMessage,
+        })
+      );
     }
 
     emit(job, { type: "progress", done: job.done, total: job.total, failed: job.failed });
@@ -149,7 +172,22 @@ async function runJob(job: Job, accessToken: string, query: MailQuery): Promise<
 
   job.status = "done";
   job.durationMs = Date.now() - (job.startedAt ?? Date.now());
-  emit(job, { type: "done", done: job.done, total: job.total, failed: job.failed, durationMs: job.durationMs });
-  console.log(JSON.stringify({ action: "job", jobId: job.id, status: "done", done: job.done, failed: job.failed, duration_ms: job.durationMs }));
+  emit(job, {
+    type: "done",
+    done: job.done,
+    total: job.total,
+    failed: job.failed,
+    durationMs: job.durationMs,
+  });
+  console.log(
+    JSON.stringify({
+      action: "job",
+      jobId: job.id,
+      status: "done",
+      done: job.done,
+      failed: job.failed,
+      duration_ms: job.durationMs,
+    })
+  );
   scheduleCleanup(job);
 }

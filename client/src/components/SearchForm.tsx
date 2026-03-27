@@ -36,8 +36,11 @@ export default function SearchForm({ onSearch, loading }: Props) {
       <h2 className="font-semibold text-gray-800">検索条件</h2>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-gray-700">カテゴリ</label>
+        <label htmlFor="category" className="text-sm font-medium text-gray-700">
+          カテゴリ
+        </label>
         <select
+          id="category"
           value={category ?? ""}
           onChange={(e) => setCategory((e.target.value as SearchParams["category"]) || undefined)}
           className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -50,10 +53,11 @@ export default function SearchForm({ onSearch, loading }: Props) {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-gray-700">
+        <label htmlFor="olderThanDays" className="text-sm font-medium text-gray-700">
           〇日以上前のメール
         </label>
         <input
+          id="olderThanDays"
           type="number"
           min={1}
           value={olderThanDays}
@@ -64,8 +68,11 @@ export default function SearchForm({ onSearch, loading }: Props) {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-gray-700">既読 / 未読</label>
+        <label htmlFor="isUnread" className="text-sm font-medium text-gray-700">
+          既読 / 未読
+        </label>
         <select
+          id="isUnread"
           value={isUnread === undefined ? "" : isUnread ? "unread" : "read"}
           onChange={(e) => {
             if (e.target.value === "") setIsUnread(undefined);
@@ -80,8 +87,11 @@ export default function SearchForm({ onSearch, loading }: Props) {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-gray-700">ラベル（任意）</label>
+        <label htmlFor="label" className="text-sm font-medium text-gray-700">
+          ラベル（任意）
+        </label>
         <input
+          id="label"
           type="text"
           value={label}
           onChange={(e) => setLabel(e.target.value)}
