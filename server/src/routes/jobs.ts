@@ -44,7 +44,7 @@ app.get("/:id/stream", (c) => {
         } else if (event.type === "done") {
           await stream.writeSSE({
             event: "done",
-            data: JSON.stringify({ done: event.done, total: event.total, failed: event.failed }),
+            data: JSON.stringify({ done: event.done, total: event.total, failed: event.failed, durationMs: event.durationMs }),
           });
           unsubscribe();
           resolve();
