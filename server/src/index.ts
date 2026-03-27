@@ -26,4 +26,5 @@ console.log(`Server running on http://localhost:${PORT}`);
 export default {
   port: PORT,
   fetch: app.fetch,
+  idleTimeout: 0, // SSE の長時間接続を維持するためタイムアウトを無効化
 };
