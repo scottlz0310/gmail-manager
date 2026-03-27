@@ -1,11 +1,12 @@
+import { randomUUID } from "node:crypto";
 import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
 import { requireAuth } from "../middleware/session";
-import { startJob, getJob, subscribeJob } from "../services/JobRunner";
 import type { MailQuery } from "../services/GmailService";
-import { randomUUID } from "crypto";
+import { getJob, startJob, subscribeJob } from "../services/JobRunner";
+import type { HonoVariables } from "../types";
 
-const app = new Hono();
+const app = new Hono<{ Variables: HonoVariables }>();
 
 app.use("*", requireAuth);
 
@@ -24,7 +25,13 @@ app.post("/", async (c) => {
 app.get("/:id", (c) => {
   const job = getJob(c.req.param("id"));
   if (!job) return c.json({ error: "not found" }, 404);
-  return c.json({ id: job.id, status: job.status, total: job.total, done: job.done, failed: job.failed });
+  return c.json({
+    id: job.id,
+    status: job.status,
+    total: job.total,
+    done: job.done,
+    failed: job.failed,
+  });
 });
 
 // GET /api/jobs/:id/stream → SSE で進捗をストリーミング
@@ -44,7 +51,12 @@ app.get("/:id/stream", (c) => {
         } else if (event.type === "done") {
           await stream.writeSSE({
             event: "done",
-            data: JSON.stringify({ done: event.done, total: event.total, failed: event.failed, durationMs: event.durationMs }),
+            data: JSON.stringify({
+              done: event.done,
+              total: event.total,
+              failed: event.failed,
+              durationMs: event.durationMs,
+            }),
           });
           unsubscribe();
           resolve();

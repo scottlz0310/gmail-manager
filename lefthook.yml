@@ -6,9 +6,6 @@ pre-commit:
       stage_fixed: true
 
 commit-msg:
-  commands:
-    conventional-commit:
-      run: >
-        echo "{1}" | grep -qE
-        "^(feat|fix|docs|style|refactor|test|chore|ci|build|perf)(\(.+\))?(!)?: .{1,100}"
-        || (echo "❌ Conventional Commits 形式で書いてください。例: feat: add search filter" && exit 1)
+  scripts:
+    "conventional-commit.sh":
+      runner: sh

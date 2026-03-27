@@ -2,8 +2,9 @@ import { Hono } from "hono";
 import { requireAuth } from "../middleware/session";
 import { GmailService } from "../services/GmailService";
 import type { MailQuery } from "../services/GmailService";
+import type { HonoVariables } from "../types";
 
-const app = new Hono();
+const app = new Hono<{ Variables: HonoVariables }>();
 
 app.use("*", requireAuth);
 

@@ -1,17 +1,18 @@
-import { Hono } from "hono";
-import { setCookie, deleteCookie, getCookie } from "hono/cookie";
+import { randomUUID } from "node:crypto";
+import { eq } from "drizzle-orm";
 import { google } from "googleapis";
+import { Hono } from "hono";
+import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { db } from "../db";
 import { sessions } from "../db/schema";
-import { eq } from "drizzle-orm";
-import { randomUUID } from "crypto";
+import type { HonoVariables } from "../types";
 
-const app = new Hono();
+const app = new Hono<{ Variables: HonoVariables }>();
 
 function getOAuth2Client() {
   return new google.auth.OAuth2(
-    process.env.GOOGLE_CLIENT_ID!,
-    process.env.GOOGLE_CLIENT_SECRET!,
+    process.env.GOOGLE_CLIENT_ID ?? "",
+    process.env.GOOGLE_CLIENT_SECRET ?? "",
     process.env.GOOGLE_REDIRECT_URI ?? "http://localhost:3001/api/auth/callback"
   );
 }
@@ -64,7 +65,7 @@ app.get("/callback", async (c) => {
   // id_token を署名検証してメールアドレスを取得
   const ticket = await oauth2.verifyIdToken({
     idToken: tokens.id_token,
-    audience: process.env.GOOGLE_CLIENT_ID!,
+    audience: process.env.GOOGLE_CLIENT_ID ?? "",
   });
   const email = ticket.getPayload()?.email ?? null;
 
