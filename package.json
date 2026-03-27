@@ -4,9 +4,16 @@
   "workspaces": ["server", "client"],
   "scripts": {
     "dev": "concurrently \"bun run --cwd server dev\" \"bun run --cwd client dev\"",
-    "build": "bun run --cwd client build"
+    "build": "bun run --cwd client build",
+    "typecheck": "tsc -p server/tsconfig.json --noEmit && tsc -p client/tsconfig.json --noEmit",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "prepare": "lefthook install"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "@biomejs/biome": "^1.9.4",
+    "concurrently": "^9.1.2",
+    "lefthook": "^1.11.5"
   }
 }
