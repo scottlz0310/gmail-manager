@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 interface Props {
   jobId: string;
   total: number;
-  onDone: (done: number, failed: number) => void;
+  onDone: (done: number, failed: number, durationMs: number) => void;
 }
 
 export default function DeleteProgress({ jobId, total, onDone }: Props) {
@@ -21,9 +21,9 @@ export default function DeleteProgress({ jobId, total, onDone }: Props) {
     });
 
     es.addEventListener("done", (e) => {
-      const data = JSON.parse(e.data) as { done: number; failed: number };
+      const data = JSON.parse(e.data) as { done: number; failed: number; durationMs: number };
       es.close();
-      onDone(data.done, data.failed);
+      onDone(data.done, data.failed, data.durationMs);
     });
 
     es.addEventListener("error", (e) => {

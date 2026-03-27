@@ -12,7 +12,7 @@ type Phase =
   | { type: "searching" }
   | { type: "preview"; count: number; ids: string[]; query: SearchParams }
   | { type: "deleting"; jobId: string; total: number }
-  | { type: "done"; done: number; failed: number };
+  | { type: "done"; done: number; failed: number; durationMs: number };
 
 export default function Dashboard({ email, onLogout }: Props) {
   const [phase, setPhase] = useState<Phase>({ type: "idle" });
@@ -123,7 +123,7 @@ export default function Dashboard({ email, onLogout }: Props) {
           <DeleteProgress
             jobId={phase.jobId}
             total={phase.total}
-            onDone={(done, failed) => setPhase({ type: "done", done, failed })}
+            onDone={(done, failed, durationMs) => setPhase({ type: "done", done, failed, durationMs })}
           />
         )}
 
@@ -135,6 +135,10 @@ export default function Dashboard({ email, onLogout }: Props) {
               {phase.failed > 0 && (
                 <>　/ 失敗: <span className="font-medium text-red-500">{phase.failed} 件</span></>
               )}
+            </p>
+            <p className="text-sm text-gray-400">
+              実行時間: {(phase.durationMs / 1000).toFixed(1)} 秒
+              （{Math.round(phase.done / (phase.durationMs / 1000))} 件/秒）
             </p>
             <button
               type="button"

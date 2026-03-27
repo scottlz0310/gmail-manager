@@ -15,12 +15,14 @@ export interface Job {
   done: number;
   failed: number;
   error?: string;
+  startedAt?: number; // Date.now()
+  durationMs?: number;
   listeners: Set<(event: JobEvent) => void>;
 }
 
 export type JobEvent =
   | { type: "progress"; done: number; total: number; failed: number }
-  | { type: "done"; done: number; total: number; failed: number }
+  | { type: "done"; done: number; total: number; failed: number; durationMs: number }
   | { type: "error"; message: string };
 
 // インメモリジョブレジストリ
@@ -71,6 +73,7 @@ export async function startJob(jobId: string, accessToken: string, query: MailQu
 
 async function runJob(job: Job, accessToken: string, query: MailQuery): Promise<void> {
   job.status = "running";
+  job.startedAt = Date.now();
   const gmail = new GmailService(accessToken);
 
   const ids = await gmail.list(query);
@@ -130,6 +133,7 @@ async function runJob(job: Job, accessToken: string, query: MailQuery): Promise<
   }
 
   job.status = "done";
-  emit(job, { type: "done", done: job.done, total: job.total, failed: job.failed });
-  console.log(JSON.stringify({ action: "job", jobId: job.id, status: "done", done: job.done, failed: job.failed }));
+  job.durationMs = Date.now() - job.startedAt!;
+  emit(job, { type: "done", done: job.done, total: job.total, failed: job.failed, durationMs: job.durationMs });
+  console.log(JSON.stringify({ action: "job", jobId: job.id, status: "done", done: job.done, failed: job.failed, duration_ms: job.durationMs }));
 }
