@@ -35,4 +35,4 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./server/coverage/lcov.info
           flags: server
-          fail_ci_if_error: true
+          fail_ci_if_error: false

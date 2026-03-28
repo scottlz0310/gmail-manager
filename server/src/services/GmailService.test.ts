@@ -1,5 +1,8 @@
-import { afterAll, beforeAll, describe, expect, it, mock } from "bun:test";
+import { describe, expect, it, mock } from "bun:test";
 import { buildQuery, withRetry } from "./GmailService";
+
+// テスト用: バックオフ待機を即時解決するスタブ
+const noopSleep = () => Promise.resolve();
 
 // ─── buildQuery ───────────────────────────────────────────────────────────────
 
@@ -52,21 +55,9 @@ describe("buildQuery", () => {
 // ─── withRetry ────────────────────────────────────────────────────────────────
 
 describe("withRetry", () => {
-  let origSetTimeout: typeof globalThis.setTimeout;
-
-  // テスト中はバックオフ待機を即時実行に差し替える
-  beforeAll(() => {
-    origSetTimeout = globalThis.setTimeout;
-    (globalThis as unknown as { setTimeout: (fn: () => void) => void }).setTimeout = (fn) => fn();
-  });
-
-  afterAll(() => {
-    globalThis.setTimeout = origSetTimeout;
-  });
-
   it("初回で成功したときそのまま値を返す", async () => {
     const fn = mock(() => Promise.resolve(42));
-    expect(await withRetry(fn)).toBe(42);
+    expect(await withRetry(fn, noopSleep)).toBe(42);
     expect(fn).toHaveBeenCalledTimes(1);
   });
 
@@ -75,7 +66,7 @@ describe("withRetry", () => {
     const result = await withRetry(async () => {
       if (++calls < 3) throw new Error("429 Too Many Requests");
       return "ok";
-    });
+    }, noopSleep);
     expect(result).toBe("ok");
     expect(calls).toBe(3);
   });
@@ -85,20 +76,20 @@ describe("withRetry", () => {
     const result = await withRetry(async () => {
       if (++calls < 2) throw new Error("quotaExceeded");
       return "ok";
-    });
+    }, noopSleep);
     expect(result).toBe("ok");
     expect(calls).toBe(2);
   });
 
   it("クォータ以外のエラーはリトライせず即座にスロー", async () => {
     const fn = mock(() => Promise.reject(new Error("network error")));
-    await expect(withRetry(fn)).rejects.toThrow("network error");
+    await expect(withRetry(fn, noopSleep)).rejects.toThrow("network error");
     expect(fn).toHaveBeenCalledTimes(1);
   });
 
   it("最大リトライ回数（5回）を超えたらスロー（計6回呼ばれる）", async () => {
     const fn = mock(() => Promise.reject(new Error("quotaExceeded")));
-    await expect(withRetry(fn)).rejects.toThrow("quotaExceeded");
+    await expect(withRetry(fn, noopSleep)).rejects.toThrow("quotaExceeded");
     expect(fn).toHaveBeenCalledTimes(6); // 初回 + 5リトライ
   });
 });

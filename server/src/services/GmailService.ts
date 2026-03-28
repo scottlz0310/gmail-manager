@@ -19,7 +19,12 @@ export function buildQuery(query: MailQuery): string {
   return parts.join(" ");
 }
 
-export async function withRetry<T>(fn: () => Promise<T>): Promise<T> {
+const defaultSleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
+export async function withRetry<T>(
+  fn: () => Promise<T>,
+  sleep: (ms: number) => Promise<void> = defaultSleep
+): Promise<T> {
   let backoff = INITIAL_BACKOFF_MS;
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
@@ -29,7 +34,7 @@ export async function withRetry<T>(fn: () => Promise<T>): Promise<T> {
         err instanceof Error &&
         (err.message.includes("429") || err.message.includes("quotaExceeded"));
       if (!isQuota || attempt === MAX_RETRIES) throw err;
-      await new Promise((r) => setTimeout(r, Math.min(backoff, 60_000)));
+      await sleep(Math.min(backoff, 60_000));
       backoff *= 2;
     }
   }
