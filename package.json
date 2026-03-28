@@ -1,7 +1,10 @@
 {
   "name": "gmail-manager",
   "private": true,
-  "workspaces": ["server", "client"],
+  "workspaces": [
+    "server",
+    "client"
+  ],
   "scripts": {
     "dev": "concurrently \"bun run --cwd server dev\" \"bun run --cwd client dev\"",
     "build": "bun run --cwd client build",
