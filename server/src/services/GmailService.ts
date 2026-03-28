@@ -10,7 +10,7 @@ export interface MailQuery {
 const MAX_RETRIES = 5;
 const INITIAL_BACKOFF_MS = 1000;
 
-function buildQuery(query: MailQuery): string {
+export function buildQuery(query: MailQuery): string {
   const parts: string[] = [];
   if (query.category) parts.push(`category:${query.category}`);
   if (query.olderThanDays !== undefined) parts.push(`older_than:${query.olderThanDays}d`);
@@ -19,7 +19,7 @@ function buildQuery(query: MailQuery): string {
   return parts.join(" ");
 }
 
-async function withRetry<T>(fn: () => Promise<T>): Promise<T> {
+export async function withRetry<T>(fn: () => Promise<T>): Promise<T> {
   let backoff = INITIAL_BACKOFF_MS;
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
