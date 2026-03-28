@@ -12,14 +12,27 @@ const app = new Hono();
 
 const PORT = Number(process.env.PORT ?? 3001);
 const isProd = process.env.NODE_ENV === "production";
-// 本番モードはクライアントとサーバーが同一オリジンなので PORT に合わせる
+
+// GOOGLE_REDIRECT_URI のオリジンから CLIENT_ORIGIN を導出
+// 例: http://localhost:3001/api/auth/callback → http://localhost:3001
+function getDefaultClientOrigin(): string {
+  const googleRedirect = process.env.GOOGLE_REDIRECT_URI;
+  if (googleRedirect) {
+    const match = /^(https?:\/\/[^/]+)/.exec(googleRedirect);
+    if (match) return match[1];
+  }
+  return isProd ? `http://localhost:${PORT}` : "http://localhost:5173";
+}
+
 const CLIENT_ORIGIN = isProd
-  ? `http://localhost:${PORT}`
-  : (process.env.CLIENT_ORIGIN ?? "http://localhost:5173");
+  ? getDefaultClientOrigin()
+  : (process.env.CLIENT_ORIGIN ?? getDefaultClientOrigin());
 
 app.use("*", logger());
 app.use("*", cors({ origin: CLIENT_ORIGIN, credentials: true }));
-app.use("*", sessionMiddleware);
+
+// session middleware は API ルートのみに適用（静的アセットへの不要な DB ルックアップを回避）
+app.use("/api/*", sessionMiddleware);
 
 app.route("/api/auth", authRoutes);
 app.route("/api/mails", mailsRoutes);
@@ -32,9 +45,10 @@ const URL = `http://localhost:${PORT}`;
 if (isProd) {
   const clientDist = resolve(import.meta.dir, "../../client/dist");
   app.use("/*", serveStatic({ root: clientDist }));
+  // 存在しない API エンドポイントへの GET に HTML を返さないよう明示的に 404 を返す
+  app.all("/api/*", (c) => c.json({ error: "Not Found" }, 404));
   app.get("*", () => new Response(Bun.file(resolve(clientDist, "index.html"))));
 
-  // ビルド完了後にブラウザを自動で開く
   setTimeout(() => {
     const cmd =
       process.platform === "win32"
@@ -42,7 +56,7 @@ if (isProd) {
         : process.platform === "darwin"
           ? ["open", URL]
           : ["xdg-open", URL];
-    Bun.spawn(cmd, { stdout: "pipe", stderr: "pipe" });
+    Bun.spawn(cmd, { stdout: "ignore", stderr: "ignore" });
   }, 500);
 }
 
