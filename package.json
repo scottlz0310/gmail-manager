@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "concurrently \"bun run --cwd server dev\" \"bun run --cwd client dev\"",
     "build": "bun run --cwd client build",
+    "start": "bun run build && bun run --cwd server start:prod",
     "typecheck": "tsc -p server/tsconfig.json --noEmit && tsc -p client/tsconfig.json --noEmit",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",

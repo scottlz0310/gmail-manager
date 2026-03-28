@@ -87,7 +87,12 @@ app.get("/callback", async (c) => {
     secure: isSecure,
   });
 
-  return c.redirect(process.env.CLIENT_ORIGIN ?? "http://localhost:5173");
+  const port = Number(process.env.PORT ?? 3001);
+  const clientOrigin =
+    process.env.NODE_ENV === "production"
+      ? `http://localhost:${port}`
+      : (process.env.CLIENT_ORIGIN ?? "http://localhost:5173");
+  return c.redirect(clientOrigin);
 });
 
 // POST /api/auth/logout
