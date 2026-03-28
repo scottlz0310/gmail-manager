@@ -3,6 +3,21 @@
 肥大化した Gmail を整理するためのローカル Web ツール。
 検索条件でメールを絞り込み、一括削除の進捗をリアルタイムで確認できます。
 
+## クイックスタート
+
+```bash
+git clone <このリポジトリの URL>
+cd gmail-manager
+cp .env.local.example server/.env.local
+# server/.env.local を編集（Google OAuth 認証情報を設定）
+bun install
+bun run start
+# → ビルド完了後、ブラウザが自動で http://localhost:3001 を開きます
+```
+
+> **初回のみ** Google Cloud Console で OAuth クライアントを作成し、`.env.local` に設定が必要です。
+> 詳細は[セットアップ](#セットアップ)を参照してください。
+
 ## スクリーンショット
 
 | ログイン | 検索 | 削除進捗 |
@@ -46,7 +61,6 @@ cp .env.local.example server/.env.local
 GOOGLE_CLIENT_ID="your-client-id.apps.googleusercontent.com"
 GOOGLE_CLIENT_SECRET="your-client-secret"
 GOOGLE_REDIRECT_URI="http://localhost:3001/api/auth/callback"
-CLIENT_ORIGIN="http://localhost:5173"
 PORT=3001
 ```
 
@@ -54,10 +68,10 @@ PORT=3001
 
 ```bash
 bun install
-bun run dev
+bun run start
 ```
 
-ブラウザで http://localhost:5173 を開く。
+ブラウザが自動で `http://localhost:3001` を開きます。
 
 ## 使い方
 
@@ -70,6 +84,9 @@ bun run dev
 ## 開発
 
 ```bash
+# 開発サーバー起動（Vite HMR あり / http://localhost:5173）
+bun run dev
+
 # 型チェック
 bun run typecheck
 

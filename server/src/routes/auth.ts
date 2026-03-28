@@ -87,7 +87,13 @@ app.get("/callback", async (c) => {
     secure: isSecure,
   });
 
-  return c.redirect(process.env.CLIENT_ORIGIN ?? "http://localhost:5173");
+  // GOOGLE_REDIRECT_URI のオリジンからリダイレクト先を導出（index.ts の CLIENT_ORIGIN と同じロジック）
+  const googleRedirect = process.env.GOOGLE_REDIRECT_URI;
+  const originMatch = googleRedirect && /^(https?:\/\/[^/]+)/.exec(googleRedirect);
+  const clientOrigin = originMatch
+    ? originMatch[1]
+    : (process.env.CLIENT_ORIGIN ?? "http://localhost:5173");
+  return c.redirect(clientOrigin);
 });
 
 // POST /api/auth/logout
