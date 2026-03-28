@@ -6,6 +6,9 @@ node_modules/
 client/dist/
 *.tsbuildinfo
 
+# テストカバレッジ
+server/coverage/
+
 # DB（ローカルデータ・gitignore）
 data/
 

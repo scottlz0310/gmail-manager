@@ -10,7 +10,7 @@ export interface MailQuery {
 const MAX_RETRIES = 5;
 const INITIAL_BACKOFF_MS = 1000;
 
-function buildQuery(query: MailQuery): string {
+export function buildQuery(query: MailQuery): string {
   const parts: string[] = [];
   if (query.category) parts.push(`category:${query.category}`);
   if (query.olderThanDays !== undefined) parts.push(`older_than:${query.olderThanDays}d`);
@@ -19,7 +19,12 @@ function buildQuery(query: MailQuery): string {
   return parts.join(" ");
 }
 
-async function withRetry<T>(fn: () => Promise<T>): Promise<T> {
+const defaultSleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
+export async function withRetry<T>(
+  fn: () => Promise<T>,
+  sleep: (ms: number) => Promise<void> = defaultSleep
+): Promise<T> {
   let backoff = INITIAL_BACKOFF_MS;
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
@@ -29,7 +34,7 @@ async function withRetry<T>(fn: () => Promise<T>): Promise<T> {
         err instanceof Error &&
         (err.message.includes("429") || err.message.includes("quotaExceeded"));
       if (!isQuota || attempt === MAX_RETRIES) throw err;
-      await new Promise((r) => setTimeout(r, Math.min(backoff, 60_000)));
+      await sleep(Math.min(backoff, 60_000));
       backoff *= 2;
     }
   }
