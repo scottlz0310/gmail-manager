@@ -1,9 +1,9 @@
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white rounded-2xl shadow-md p-10 flex flex-col items-center gap-6 w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-gray-800">Gmail Manager</h1>
-        <p className="text-sm text-gray-500 text-center">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-10 flex flex-col items-center gap-6 w-full max-w-sm">
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Gmail Manager</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
           Google アカウントでログインして、メールを一括管理できます。
         </p>
         <a

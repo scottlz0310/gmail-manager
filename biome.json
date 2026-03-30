@@ -29,6 +29,11 @@
       "trailingCommas": "es5"
     }
   },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
   "files": {
     "includes": ["**", "!**/node_modules", "!client/dist", "!data", "!bun.lock"]
   }
