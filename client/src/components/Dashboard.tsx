@@ -1,6 +1,7 @@
 import { useState } from "react";
 import DeleteProgress from "./DeleteProgress";
 import SearchForm, { type SearchParams } from "./SearchForm";
+import ThemeToggle from "./ThemeToggle";
 
 interface Props {
   email: string;
@@ -61,22 +62,23 @@ export default function Dashboard({ email, onLogout }: Props) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-gray-800">Gmail Manager</h1>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
+        <h1 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Gmail Manager</h1>
         <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-500">{email}</span>
+          <ThemeToggle />
+          <span className="text-sm text-gray-500 dark:text-gray-400">{email}</span>
           <button
             type="button"
             onClick={handleLogout}
-            className="text-sm px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors"
+            className="text-sm px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 transition-colors"
           >
             ログアウト
           </button>
         </div>
       </header>
       {logoutError && (
-        <div className="mx-6 mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+        <div className="mx-6 mt-4 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-600 dark:text-red-400">
           {logoutError}
         </div>
       )}
@@ -87,15 +89,19 @@ export default function Dashboard({ email, onLogout }: Props) {
         )}
 
         {phase.type === "preview" && (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col gap-4">
-            <p className="text-gray-700">
-              <span className="font-semibold text-xl text-gray-900">{phase.count}</span>{" "}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 flex flex-col gap-4">
+            <p className="text-gray-700 dark:text-gray-200">
+              <span className="font-semibold text-xl text-gray-900 dark:text-gray-100">
+                {phase.count}
+              </span>{" "}
               件が検索条件に一致しました。
             </p>
             {phase.count === 0 ? (
-              <p className="text-sm text-gray-400">削除対象のメールがありません。</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500">
+                削除対象のメールがありません。
+              </p>
             ) : (
-              <p className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+              <p className="text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-lg px-3 py-2">
                 削除すると元に戻せません。本当に削除しますか？
               </p>
             )}
@@ -103,7 +109,7 @@ export default function Dashboard({ email, onLogout }: Props) {
               <button
                 type="button"
                 onClick={() => setPhase({ type: "idle" })}
-                className="flex-1 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors"
+                className="flex-1 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 キャンセル
               </button>
@@ -131,9 +137,9 @@ export default function Dashboard({ email, onLogout }: Props) {
         )}
 
         {phase.type === "done" && (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col gap-4">
-            <p className="text-gray-800 font-semibold text-lg">完了しました</p>
-            <p className="text-sm text-gray-600">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 flex flex-col gap-4">
+            <p className="text-gray-800 dark:text-gray-100 font-semibold text-lg">完了しました</p>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
               削除成功: <span className="font-medium text-green-600">{phase.done} 件</span>
               {phase.failed > 0 && (
                 <>
@@ -142,7 +148,7 @@ export default function Dashboard({ email, onLogout }: Props) {
               )}
             </p>
             {phase.durationMs > 0 && (
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-gray-400 dark:text-gray-500">
                 実行時間: {(phase.durationMs / 1000).toFixed(1)} 秒 （
                 {Math.round(phase.done / (phase.durationMs / 1000))} 件/秒）
               </p>

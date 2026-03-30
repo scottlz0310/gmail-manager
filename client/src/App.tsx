@@ -19,7 +19,7 @@ export default function App() {
 
   if (me === null) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-gray-400">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 text-gray-400 dark:text-gray-500">
         読み込み中...
       </div>
     );
