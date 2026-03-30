@@ -12,7 +12,7 @@
   "dependencies": {
     "hono": "^4.12.9",
     "googleapis": "^171.4.0",
-    "drizzle-orm": "^0.41.0"
+    "drizzle-orm": "^0.45.2"
   },
   "devDependencies": {
     "bun-types": "latest",
