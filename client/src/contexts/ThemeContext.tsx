@@ -7,10 +7,7 @@ interface ThemeContextValue {
   setTheme: (theme: ThemeMode) => void;
 }
 
-const ThemeContext = createContext<ThemeContextValue>({
-  theme: "system",
-  setTheme: () => {},
-});
+const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 function applyTheme(theme: ThemeMode) {
   const root = document.documentElement;
@@ -23,10 +20,19 @@ function applyTheme(theme: ThemeMode) {
   }
 }
 
+export function getInitialTheme(): ThemeMode {
+  const stored = localStorage.getItem("theme");
+  if (stored === "light" || stored === "dark" || stored === "system") {
+    return stored;
+  }
+  if (stored !== null) {
+    localStorage.removeItem("theme");
+  }
+  return "system";
+}
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<ThemeMode>(
-    () => (localStorage.getItem("theme") as ThemeMode) ?? "system"
-  );
+  const [theme, setThemeState] = useState<ThemeMode>(getInitialTheme);
 
   const setTheme = (next: ThemeMode) => {
     localStorage.setItem("theme", next);
@@ -50,6 +56,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   return <ThemeContext.Provider value={{ theme, setTheme }}>{children}</ThemeContext.Provider>;
 }
 
-export function useTheme() {
-  return useContext(ThemeContext);
+export function useTheme(): ThemeContextValue {
+  const ctx = useContext(ThemeContext);
+  if (!ctx) throw new Error("useTheme must be used within ThemeProvider");
+  return ctx;
 }

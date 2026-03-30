@@ -13,21 +13,26 @@ export default function ThemeToggle() {
     <fieldset className="flex items-center rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden p-0 m-0">
       <legend className="sr-only">テーマ選択</legend>
       {modes.map(({ value, label, icon }) => (
-        <button
+        <label
           key={value}
-          type="button"
           title={label}
-          aria-label={label}
-          aria-pressed={theme === value}
-          onClick={() => setTheme(value)}
-          className={`flex items-center justify-center w-8 h-8 transition-colors ${
+          className={`flex items-center justify-center w-8 h-8 transition-colors cursor-pointer ${
             theme === value
               ? "bg-blue-600 text-white"
               : "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
           }`}
         >
+          <input
+            type="radio"
+            name="theme"
+            value={value}
+            aria-label={label}
+            checked={theme === value}
+            onChange={() => setTheme(value)}
+            className="sr-only"
+          />
           {icon}
-        </button>
+        </label>
       ))}
     </fieldset>
   );
