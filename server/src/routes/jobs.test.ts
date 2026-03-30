@@ -27,6 +27,7 @@ authApp.use("*", async (c, next) => {
     expiresAt: null,
     createdAt: 0,
   });
+  c.set("sessionId", "test-session-id");
   await next();
 });
 authApp.route("/api/jobs", jobsRoutes);
@@ -46,7 +47,9 @@ describe("POST /api/jobs", () => {
     expect(res.status).toBe(200);
     const body = (await res.json()) as { jobId: string };
     expect(typeof body.jobId).toBe("string");
-    expect(body.jobId.length).toBeGreaterThan(0);
+    expect(body.jobId).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+    );
   });
 
   it("未認証 → 401 を返す", async () => {

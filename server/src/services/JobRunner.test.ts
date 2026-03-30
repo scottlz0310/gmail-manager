@@ -54,8 +54,14 @@ describe("subscribeJob", () => {
 /** ジョブが done または error になるまで待機するヘルパー */
 function waitForJobEvent(jobId: string): Promise<JobEvent> {
   return new Promise<JobEvent>((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error("job event timeout")), 5000);
-    const unsub = subscribeJob(jobId, (event) => {
+    // let で先に初期化しておくことで、既完了ジョブへの即時通知（microtask）で
+    // unsub() が呼ばれる際に TDZ エラーにならないようにする
+    let unsub = () => {};
+    const timer = setTimeout(() => {
+      unsub();
+      reject(new Error("job event timeout"));
+    }, 5000);
+    unsub = subscribeJob(jobId, (event) => {
       if (event.type === "done" || event.type === "error") {
         clearTimeout(timer);
         unsub();
@@ -115,9 +121,14 @@ describe("startJob", () => {
 
     // 既に done 状態のジョブへの subscribe → Promise.resolve で即時通知される
     const secondEvent = await new Promise<JobEvent>((resolve, reject) => {
-      const timer = setTimeout(() => reject(new Error("immediate notification timeout")), 1000);
-      subscribeJob(jobId, (event) => {
+      let unsub = () => {};
+      const timer = setTimeout(() => {
+        unsub();
+        reject(new Error("immediate notification timeout"));
+      }, 1000);
+      unsub = subscribeJob(jobId, (event) => {
         clearTimeout(timer);
+        unsub();
         resolve(event);
       });
     });

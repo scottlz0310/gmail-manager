@@ -25,6 +25,7 @@ authApp.use("*", async (c, next) => {
     expiresAt: null,
     createdAt: 0,
   });
+  c.set("sessionId", "test-session-id");
   await next();
 });
 authApp.route("/api/mails", mailsRoutes);

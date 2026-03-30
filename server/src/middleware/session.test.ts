@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "bun:test";
+import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../db";
@@ -18,6 +18,11 @@ testApp.get("/test", (c) => {
 // テスト用セッション ID（他のテストと衝突しない固定値を使用）
 const EXPIRED_SESSION_ID = "test-middleware-expired-session";
 const VALID_SESSION_ID = "test-middleware-valid-session";
+
+beforeEach(async () => {
+  await db.delete(sessions).where(eq(sessions.id, EXPIRED_SESSION_ID));
+  await db.delete(sessions).where(eq(sessions.id, VALID_SESSION_ID));
+});
 
 afterEach(async () => {
   // 残留テストデータのクリーンアップ
