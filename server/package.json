@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "hono": "^4.12.22",
-    "googleapis": "^171.4.0",
+    "googleapis": "^172.0.0",
     "drizzle-orm": "^0.45.2"
   },
   "devDependencies": {
