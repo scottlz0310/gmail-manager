@@ -19,6 +19,6 @@
   "devDependencies": {
     "@biomejs/biome": "^2.5.3",
     "concurrently": "^10.0.3",
-    "lefthook": "^2.1.9"
+    "lefthook": "^2.1.10"
   }
 }
