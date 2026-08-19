@@ -10,7 +10,7 @@
     "test:coverage": "bun test --coverage --coverage-reporter=lcov"
   },
   "dependencies": {
-    "hono": "^4.13.2",
+    "hono": "^4.13.3",
     "googleapis": "^174.0.1",
     "drizzle-orm": "^0.45.2"
   },
