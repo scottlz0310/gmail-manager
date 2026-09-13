@@ -1,4 +1,4 @@
-import "@testing-library/jest-dom";
+import "@testing-library/jest-dom/vitest";
 
 // jsdom の localStorage 実装が clear() を持たないケースへの対応
 const store = new Map<string, string>();
