@@ -1,6 +1,5 @@
 import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
-import { google } from "googleapis";
 import { Hono } from "hono";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { db } from "../db";
@@ -9,13 +8,7 @@ import type { HonoVariables } from "../types";
 
 const app = new Hono<{ Variables: HonoVariables }>();
 
-function getOAuth2Client() {
-  return new google.auth.OAuth2(
-    process.env.GOOGLE_CLIENT_ID ?? "",
-    process.env.GOOGLE_CLIENT_SECRET ?? "",
-    process.env.GOOGLE_REDIRECT_URI ?? "http://localhost:3001/api/auth/callback"
-  );
-}
+import { getOAuth2Client } from "../services/googleAuth";
 
 // HTTPS 環境かどうかでセキュア Cookie を切り替え
 const isSecure = (process.env.GOOGLE_REDIRECT_URI ?? "").startsWith("https://");

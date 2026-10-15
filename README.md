@@ -111,13 +111,13 @@ bun run start
 
 | 対象 | 挙動・運用 |
 | --- | --- |
-| access token / アプリのセッション | 現行コードは自動 refresh を行わず、保存された access token の期限を過ぎるとセッションを削除します。必要時に再ログインしてください。Cookie の30日設定は30日間のログイン維持を保証しません。 |
-| refresh token | External + Testing で Gmail スコープを要求するため、原則7日で失効します。ただし現行コードは保存するだけで更新に使っていないため、「週1回だけの再ログイン」になるわけではありません。 |
+| access token / アプリのセッション | 保存された refresh token を使って有効期限（通常1時間）直前に自動更新されます。refresh token が有効な間はセッションが維持されます。Cookie の30日設定はセッションの最長保持期間であり、refresh token の失効や取消し時は再ログインが必要です。 |
+| refresh token | External + Testing で Gmail スコープを要求するため、原則7日で失効します。このため、前回の認証から7日以上経過した後の初回アクセス時には再ログインが必要になります。 |
 | 未使用 OAuth クライアント | 6か月使用されないと削除対象になります。Google の警告と最終利用日を定期確認し、実期限に対応してください。Cloud SDK 自体へのログインは本アプリの利用とは別です。 |
 
-Production に変えてもアプリの自動 refresh は有効になりません。また、refresh token が
+Testing 環境下では refresh token 自体の7日制限は access token 更新を行っても延長されません。また、refresh token が
 取消し・未使用・パスワード変更等で失効しないことも保証されません。
-自動更新が必要になった場合は [#143](https://github.com/scottlz0310/gmail-manager/issues/143) で別途検討します。
+無人運用や最小権限の設計方針は [docs/gmail-manager.md](docs/gmail-manager.md#85-無人運用最小権限の設計方針143) を参照してください。
 失効条件の詳細は [Google OAuth 2.0 の公式説明](https://developers.google.com/identity/protocols/oauth2)を参照してください。
 
 ### 個人利用と Google の審査
@@ -192,7 +192,7 @@ gmail-manager/
   server/               # Hono バックエンド
     src/
       routes/           # auth.ts, mails.ts, jobs.ts
-      services/         # GmailService.ts, JobRunner.ts
+      services/         # GmailService.ts, JobRunner.ts, googleAuth.ts
       db/               # schema.ts, index.ts
       middleware/       # session.ts
     index.ts
