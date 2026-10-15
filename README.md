@@ -81,6 +81,33 @@ bun run start
 4. **「〇件を削除」** → プログレスバーで進捗確認
 5. 完了後、実行時間と処理速度が表示される
 
+## OAuth 利用状況の定期確認
+
+GitHub Actions の「OAuth 利用確認リマインダー」が毎月1日 09:17（日本時間）に、
+専用の運用 Issue で `@scottlz0310` に確認を促します。初回は Issue を作成し、
+以後は同じ Issue にコメントします。同月の再実行は投稿を増やしません。
+Gmail API には接続せず、Google の認証情報や追加の secret は不要です。
+
+- 警告期限は現在不明です。判明したら repository variable `OAUTH_WARNING_DEADLINE` に
+  `YYYY-MM-DD` 形式で設定してください。これは表示用で、通知周期は毎月のままです。
+- 通知には翌月1日を次回確認日として記載します。警告の実期限が先に来る場合は期限前に対応してください。
+- 通知を受け取るには運用 Issue の **Subscribe** と GitHub の通知設定を確認してください。
+  この Issue は実装 Issue #142 と別に継続使用し、open のまま維持してください。
+- 確認時は Google の警告メール・Cloud Console で対象 OAuth クライアントと実期限を確認し、
+  必要に応じてローカルアプリで手動ログインします。実施日・期限・結果だけを Issue に記録し、
+  token・client secret・警告メール本文は投稿しないでください。
+- **通知だけでは OAuth の利用実績は更新されません。** ログインで警告が解消したかも確認してください。
+
+workflow が main に入った後は、Actions → OAuth 利用確認リマインダー → **Run workflow** で
+初回通知と通知経路を確認できます。実際の Issue 作成・コメントを伴います。
+実行結果はログと Job summary に残り、API の失敗は workflow の失敗として扱います。
+必要な権限は `contents: read` と `issues: write` です。fork では通知ジョブを実行しません。
+
+定期実行は main 上でのみ動作し、GitHub の混雑で遅延・未実行になる場合があります。
+公開リポジトリは60日間活動がないと schedule が無効化されるため、Actions の有効状態も確認してください。
+実期限の保証が必要な場合は手元のカレンダーにも登録してください。
+詳細は [GitHub の schedule 仕様](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule)を参照してください。
+
 ## 開発
 
 ```bash

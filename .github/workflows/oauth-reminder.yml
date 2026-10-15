@@ -1,0 +1,32 @@
+name: OAuth 利用確認リマインダー
+
+on:
+  schedule:
+    - cron: "17 0 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: oauth-reminder
+  cancel-in-progress: false
+
+jobs:
+  remind:
+    if: github.repository == 'scottlz0310/gmail-manager'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: OAuth の利用確認を通知
+        run: bun .github/scripts/oauth-reminder.ts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OAUTH_WARNING_DEADLINE: ${{ vars.OAUTH_WARNING_DEADLINE }}
