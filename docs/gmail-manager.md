@@ -211,7 +211,7 @@ interface MailService {
 4. /api/auth/callback で state を検証し、googleapis で code を token に交換
 5. id_token の署名を検証し、access/refresh token と期限を SQLite の sessions に保存
 6. HttpOnly Cookie の session_id でセッションを識別し、GmailService に access token を渡す
-7. sessionMiddleware は保存した access token の期限切れ時にセッションを削除し、再ログインを要求
+7. sessionMiddleware は access token の期限切れ（または残り5分未満）を検知すると、保存された refresh token を用いて自動更新し DB を更新する。refresh token が失効した場合や未保持の場合のみセッションを削除し、再ログインを要求
 ```
 
 ### 8.2 必要なスコープ
@@ -238,13 +238,29 @@ email
 
 ### 8.4 注意点
 
-- 現行実装は refresh token を保存するが、自動更新には使わない。access token 期限で再ログインが必要。
+- サーバー実装（`sessionMiddleware`）により、refresh token が有効な間は access token（通常1時間）が自動更新される。
 - External + Testing の Gmail 権限付き refresh token は原則7日で失効する。
-  この制限と、アプリの access token / セッションの期限切れは別である。
-- Production に変更するだけでは再ログインは解消しない。自動更新は #143 の別課題とする。
+  この7日制限により、前回の認証から7日以上経過した後の初回アクセス時には再ログインが必要。
+- Testing 環境下では refresh token 自体の7日制限は access token 更新を行っても延長されない（Google のプラットフォーム仕様）。
 - 個人利用等の Google の審査例外は利用形態に応じて確認する。BYO だけを理由に審査不要とは判断しない。
   第三者への提供を検討する場合は restricted scope の審査・CASA の適用条件を再評価する。
 - 期限と警告画面への対応、Google 公式資料は [README](../README.md#4-初回ログインと再ログイン)を参照。
+
+### 8.5 無人運用・最小権限の設計方針（#143）
+
+無人運用や定期自動処理が必要になった場合のセキュリティ境界と権限設計は以下の方針とする：
+
+1. **CI へのシークレット非配置（セキュリティ境界の維持）**:
+   - GitHub Actions などのクラウド CI に、Gmail 権限を持つ refresh token や client secret を保存しない。
+   - CI 設定の改ざんやサプライチェーン攻撃によるトークン漏洩リスクを根本的に排除するため、トークンの維持・利用確認は月次リマインダー Issue（#181）と手動ログインを基本とする。
+
+2. **無人運用の実行基盤**:
+   - 無人での自動整理が必要な場合は、クラウド CI ではなく利用者のローカルマシン（常駐プロセス、cron、Docker コンテナ等）で実行する。
+   - 7日の失効制限を解消して長期無人稼働を行う場合は、OAuth 同意画面を「本番環境（In Production / 個人利用・未検証）」に設定することで、refresh token の有効期限を延長（6か月未使用またはユーザー取消まで）する。
+
+3. **最小権限（Least Privilege）と機能のトレードオフ**:
+   - `users.messages.batchDelete`（不可逆な完全削除）には `https://mail.google.com/` が必須。
+   - 万が一のトークン漏洩や誤動作時の被害を最小化するため、無人運用向けにはスコープを `https://www.googleapis.com/auth/gmail.modify` に限定し、削除方式を「ゴミ箱移動（`TRASH` ラベル付与、30日後自動消去）」とする構成を推奨する。
 
 ---
 
