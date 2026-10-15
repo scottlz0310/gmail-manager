@@ -43,11 +43,34 @@ bun run start
 
 ### 1. Google Cloud Console の設定
 
-1. [Google Cloud Console](https://console.cloud.google.com/) でプロジェクトを作成
-2. **API とサービス → 認証情報** から OAuth 2.0 クライアント ID を作成
-   - アプリケーションの種類: **ウェブ アプリケーション**
-   - 承認済みのリダイレクト URI: `http://localhost:3001/api/auth/callback`
-3. **API とサービス → ライブラリ** で **Gmail API** を有効化
+本ツールは自分用のローカル運用を前提とし、各利用者が自分の Google Cloud プロジェクトと
+OAuth クライアントを用意する方式（BYO クライアント）を採用します。
+同意画面は **外部（External）・テスト中（Testing）** のまま利用し、必要時に再ログインします。
+現時点で、第三者向けのホスティングや Production への切り替えは予定していません。
+
+1. [Google Cloud Console](https://console.cloud.google.com/) で自分のプロジェクトを作成・選択
+2. **API とサービス → ライブラリ** で **Gmail API** を有効化
+3. **Google Auth Platform → ブランディング** でアプリ名・ユーザーサポートメール・
+   デベロッパーの連絡先を設定
+4. **対象（Audience）** でユーザーの種類を **外部**、公開ステータスを **テスト中** にし、
+   **テストユーザー** にログインする自分の Gmail アドレスを追加
+5. **データアクセス（Data Access）** に実装が要求する権限を登録
+   - `https://mail.google.com/`：メールの読み書き・送信・**ゴミ箱を経由しない完全削除**を含む制限付きスコープ
+   - `https://www.googleapis.com/auth/userinfo.email`：ログインしたメールアドレスの識別。
+     実装では Google の認可リクエストに `email` という短縮名を指定
+   - 既存設定が `gmail.modify` のみなら、上記の実装上の要求と照合してください。
+     [完全削除 API `users.messages.batchDelete`](https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages/batchDelete)
+     は `https://mail.google.com/` が必要で、`gmail.modify` では実行できません
+6. **クライアント → クライアントを作成** から OAuth 2.0 クライアントを作成
+   - アプリケーションの種類：**ウェブ アプリケーション**
+   - 承認済みのリダイレクト URI：`http://localhost:3001/api/auth/callback`
+7. 作成したクライアントの ID とシークレットを、次の手順で `server/.env.local` に設定
+
+クライアントシークレットは作成時に安全に保管してください。
+Google の現在の仕様では、作成後の表示・ダウンロードはできません。
+紛失時や古いシークレットの整理は、利用中の設定を確認してから行います。
+認証情報・token・SQLite のセッション DB を Git や Issue に貼り付けないでください。
+詳細は [OAuth クライアントの管理](https://support.google.com/cloud/answer/15549257?hl=en)を参照してください。
 
 ### 2. 環境変数
 
@@ -72,6 +95,41 @@ bun run start
 ```
 
 ブラウザが自動で `http://localhost:3001` を開きます。
+
+### 4. 初回ログインと再ログイン
+
+1. **Google でログイン** を選び、テストユーザーに登録した自分のアカウントを選択
+2. アプリ名・自分で作成した OAuth クライアントであること・要求権限を確認して同意
+3. 「このアプリは Google で確認されていません」と表示された場合は、上記を確認した上で、
+   **詳細 → アプリへ移動** が表示される場合に限り、その導線で同意画面へ進む
+
+「アクセスをブロックしました」と表示された場合は、選択プロジェクト・テストユーザー登録・
+ログインアカウント・リダイレクト URI を確認してください。
+組織の管理者ポリシーによる制限や、続行できない画面を回避しないでください。
+
+本ツールが採用する Testing 運用では、次の期限を区別します。
+
+| 対象 | 挙動・運用 |
+| --- | --- |
+| access token / アプリのセッション | 現行コードは自動 refresh を行わず、保存された access token の期限を過ぎるとセッションを削除します。必要時に再ログインしてください。Cookie の30日設定は30日間のログイン維持を保証しません。 |
+| refresh token | External + Testing で Gmail スコープを要求するため、原則7日で失効します。ただし現行コードは保存するだけで更新に使っていないため、「週1回だけの再ログイン」になるわけではありません。 |
+| 未使用 OAuth クライアント | 6か月使用されないと削除対象になります。Google の警告と最終利用日を定期確認し、実期限に対応してください。Cloud SDK 自体へのログインは本アプリの利用とは別です。 |
+
+Production に変えてもアプリの自動 refresh は有効になりません。また、refresh token が
+取消し・未使用・パスワード変更等で失効しないことも保証されません。
+自動更新が必要になった場合は [#143](https://github.com/scottlz0310/gmail-manager/issues/143) で別途検討します。
+失効条件の詳細は [Google OAuth 2.0 の公式説明](https://developers.google.com/identity/protocols/oauth2)を参照してください。
+
+### 個人利用と Google の審査
+
+現在は本人のアカウントを自分のローカル環境で扱う個人利用とし、Testing を維持します。
+Google は個人利用・開発やテスト等の審査例外を定めていますが、BYO という方式だけで
+どの配布形態でも審査不要になるわけではありません。
+第三者向けホスティングや提供範囲の拡大を行う場合は、restricted scope の審査と
+サーバーを介するデータのセキュリティ評価（CASA）、定期再評価の適用条件を再確認します。
+詳細は [Restricted scope verification](https://developers.google.com/identity/protocols/oauth2/production-readiness/restricted-scope-verification)を参照してください。
+
+Android アプリではないため、Android デベロッパー確認の期限を本ツールの OAuth 期限として扱いません。
 
 ## 使い方
 
