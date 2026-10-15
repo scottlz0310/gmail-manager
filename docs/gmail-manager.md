@@ -1,5 +1,10 @@
 # Gmail管理システム 設計ドキュメント
 
+> **初期設計の記録**：Next.js / Supabase を前提とした案は現在の実装と異なります。
+> 現行構成は Hono + Bun + Vite + SQLite です。セットアップと運用方針は
+> [README](../README.md#セットアップ)を参照してください。第8節は現行実装に合わせて更新しています。
+> 他の節の将来拡張・公開案は、採用済みの仕様や現在の公開予定を示すものではありません。
+
 ---
 
 ## 1. 結論
@@ -195,36 +200,51 @@ interface MailService {
 
 ---
 
-## 8. 認証設計（OAuth）
+## 8. 現行の認証と運用方針（OAuth）
 
 ### 8.1 フロー
 
 ```
 1. ブラウザで WebUI を開く
-2. 「Googleでログイン」ボタン → Supabase Auth が Google OAuth を開始
-3. Google 同意画面（gmail.modify スコープを含む）
-4. /api/auth/callback でコールバック受信（exchangeCodeForSession を実行しセッション確立）
-5. Supabase Auth がトークン管理（リフレッシュ自動）
-6. バックエンドAPIは Supabase セッションから accessToken を取得して Gmail API へ渡す
+2. 「Googleでログイン」→ Hono の /api/auth/google が state を生成し Google OAuth を開始
+3. Google 同意画面（https://mail.google.com/ と email を要求）
+4. /api/auth/callback で state を検証し、googleapis で code を token に交換
+5. id_token の署名を検証し、access/refresh token と期限を SQLite の sessions に保存
+6. HttpOnly Cookie の session_id でセッションを識別し、GmailService に access token を渡す
+7. sessionMiddleware は保存した access token の期限切れ時にセッションを削除し、再ログインを要求
 ```
 
 ### 8.2 必要なスコープ
 
 ```
-https://www.googleapis.com/auth/gmail.modify
+https://mail.google.com/
+email
 ```
+
+`users.messages.batchDelete` による完全削除には `https://mail.google.com/` が必要です。
+`gmail.modify` への縮小では現在の完全削除機能を維持できません。
+`email` はメールアドレス識別用で、Console では
+`https://www.googleapis.com/auth/userinfo.email` として登録します。
+詳細は [Gmail API の完全削除仕様](https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages/batchDelete)を参照してください。
 
 ### 8.3 設定要件
 
-- Google Cloud Console でのOAuthクライアント作成が必要
-- Supabase ダッシュボード（または `supabase/config.toml`）で Google プロバイダを設定
-- Supabase Auth の Google OAuth は `gmail.modify` スコープを追加設定することで対応
+- 各利用者が自分の Google Cloud プロジェクトと OAuth クライアントを用意する（BYO）。
+- Google Auth Platform は **外部・テスト中** を維持し、自分をテストユーザーに登録する。
+- Gmail API を有効化し、データアクセスの登録を実装の要求スコープと照合する。
+- ウェブ アプリケーションのリダイレクト URI は `http://localhost:3001/api/auth/callback`。
+- クライアント ID・シークレットは `server/.env.local` に置き、Git にコミットしない。
+- 自分用のローカル運用とし、現時点で Production 化・第三者向けホスティングは予定しない。
 
 ### 8.4 注意点
 
-- Supabase Auth 単体ではなく、Google Cloud Console 側の設定も必須
-- accessToken をバックエンドで受け取り Gmail API に渡す実装が別途必要（「丸投げ」にはならない）
-- ローカル開発時は `http://localhost:3000/api/auth/callback` をリダイレクトURIに登録
+- 現行実装は refresh token を保存するが、自動更新には使わない。access token 期限で再ログインが必要。
+- External + Testing の Gmail 権限付き refresh token は原則7日で失効する。
+  この制限と、アプリの access token / セッションの期限切れは別である。
+- Production に変更するだけでは再ログインは解消しない。自動更新は #143 の別課題とする。
+- 個人利用等の Google の審査例外は利用形態に応じて確認する。BYO だけを理由に審査不要とは判断しない。
+  第三者への提供を検討する場合は restricted scope の審査・CASA の適用条件を再評価する。
+- 期限と警告画面への対応、Google 公式資料は [README](../README.md#4-初回ログインと再ログイン)を参照。
 
 ---
 
