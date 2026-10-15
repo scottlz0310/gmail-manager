@@ -84,7 +84,7 @@ bun run start
 ## OAuth 利用状況の定期確認
 
 GitHub Actions の「OAuth 利用確認リマインダー」が毎月1日 09:17（日本時間）に、
-専用の運用 Issue で `@scottlz0310` に確認を促します。初回は Issue を作成し、
+専用の運用 Issue で担当ユーザー `@scottlz0310-user` に確認を促します。初回は Issue を作成し、
 以後は同じ Issue にコメントします。同月の再実行は投稿を増やしません。
 Gmail API には接続せず、Google の認証情報や追加の secret は不要です。
 

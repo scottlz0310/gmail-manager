@@ -24,7 +24,7 @@ describe("OAuth 利用確認リマインダー", () => {
     await remind({ ...options, request });
     expect(calls[1].body?.body).toContain("Google の警告期限：不明");
     expect(calls[1].body?.body).toContain("次回確認日：2026-11-01");
-    expect(calls[1].body?.body).toContain("@scottlz0310");
+    expect(calls[1].body?.body).toContain("@scottlz0310-user Gmail Manager");
   });
 
   it.each(["body", "comment"])("%s に当月通知があれば再投稿しない", async (location) => {
@@ -46,6 +46,7 @@ describe("OAuth 利用確認リマインダー", () => {
     expect(calls[2].body?.body).toContain(`oauth-reminder:${period}`);
     expect(calls[2].body?.body).toContain(`次回確認日：${nextDate}`);
     expect(calls[2].body?.body).toContain("Google の警告期限：2027-02-15");
+    expect(calls[2].body?.body).toContain("@scottlz0310-user Gmail Manager");
   });
 
   it("Issue・コメントの2ページ目も確認して重複通知を防ぐ", async () => {

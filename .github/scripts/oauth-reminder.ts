@@ -44,7 +44,7 @@ export async function remind({
   const issues = await allPages<Issue>(request, `${base}?state=all`);
   const issue = issues.find((item) => !item.pull_request && item.body?.includes(ISSUE_MARKER));
   const notification = `${marker}
-@scottlz0310 Gmail Manager の OAuth 利用状況を確認してください。
+@scottlz0310-user Gmail Manager の OAuth 利用状況を確認してください。
 
 - 確認対象月：${period}（日本時間）
 - Google の警告期限：${deadline}
