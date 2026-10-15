@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+
+### 追加
+
+- OAuth 利用確認を毎月 GitHub の運用 Issue で通知する workflow と手動実行・同月の重複投稿防止を追加（#142）。Google の認証情報を CI に保存せず、期限不明時の確認手順と実行履歴を整備。
+- リマインダーの通知先は Organization 名ではなく担当ユーザー `@scottlz0310-user` を指定。
+
 ## [0.2.0] - 2026-03-27
 
 ### Changed
