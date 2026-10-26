@@ -11,6 +11,10 @@
 
 ### 変更
 
+- Biome を 2.6.3 へ更新して設定を移行し、Markdown・YAML の検査を維持する。lefthook の対象を biome.json とそろえ、pre-push で lint・型検査・サーバーとリマインダーのテストを全体実行する。
+- ルートの型検査が直接使う TypeScript を devDependencies に明示し、workspace 内の間接的な配置に依存しないようにした。採用済みの版は維持する。
+- `.gitattributes` でテキストを LF に統一し、Windows の `core.autocrlf=true` の新規 clone でも未変更ファイルが pre-push の整形違反にならないようにした。
+
 - OAuth2 クライアント生成およびトークン更新ロジックを `server/src/services/googleAuth.ts` にモジュール化・共通化（#143）。
 - 自分用のローカル利用・BYO クライアント・External/Testing 継続の OAuth 運用方針を明文化（#147）。同意画面とテストユーザーの設定、完全削除権限、トークン失効時の再ログインを README に追記し、初期設計の OAuth 節を現行実装に合わせて修正。
 
