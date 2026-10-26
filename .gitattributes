@@ -1,0 +1,2 @@
+# Windows の core.autocrlf にかかわらず Biome と同じ LF で展開する。
+* text=auto eol=lf
