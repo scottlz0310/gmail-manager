@@ -177,7 +177,7 @@ sessions (
 
 ```typescript
 interface MailQuery {
-  category?: 'promotions' | 'social' | 'updates';
+  category?: "promotions" | "social" | "updates";
   olderThanDays?: number;
   isUnread?: boolean;
   label?: string;
@@ -198,7 +198,11 @@ interface GmailService {
 
 ```typescript
 interface JobRunner {
-  run(jobId: string, ids: string[], onProgress: (done: number, total: number) => void): Promise<void>;
+  run(
+    jobId: string,
+    ids: string[],
+    onProgress: (done: number, total: number) => void
+  ): Promise<void>;
 }
 ```
 
@@ -329,37 +333,37 @@ https://www.googleapis.com/auth/gmail.modify
 
 ### 上位構成への移行パス
 
-| 要素 | 本案 | 上位構成 | 移行コスト |
-|------|------|----------|------------|
-| DB | SQLite | PostgreSQL | スキーマほぼ流用・データ移行のみ |
-| ORM | Drizzle（bun-sqlite） | Drizzle（pg） | ドライバ差し替えのみ |
-| Auth | OAuth直実装 | Supabase Auth | 認証フロー書き換え |
-| 進捗表示 | SSE | Supabase Realtime | SSE削除・Realtime追加 |
-| サーバー | Hono | Next.js API Routes | ルーター書き換え |
+| 要素     | 本案                  | 上位構成           | 移行コスト                       |
+| -------- | --------------------- | ------------------ | -------------------------------- |
+| DB       | SQLite                | PostgreSQL         | スキーマほぼ流用・データ移行のみ |
+| ORM      | Drizzle（bun-sqlite） | Drizzle（pg）      | ドライバ差し替えのみ             |
+| Auth     | OAuth直実装           | Supabase Auth      | 認証フロー書き換え               |
+| 進捗表示 | SSE                   | Supabase Realtime  | SSE削除・Realtime追加            |
+| サーバー | Hono                  | Next.js API Routes | ルーター書き換え                 |
 
 ---
 
 ## 13. リスク / 未決事項
 
-| 項目 | 内容 | 対応方針 |
-|------|------|----------|
-| セッション管理 | access_token の平文保存 | ローカル専用前提で許容。SaaS化時は暗号化必須 |
-| SSEの接続管理 | 長時間ジョブ中の切断 | クライアント側で再接続実装（EventSource 標準機能） |
-| Gmail API quota | 超過時の挙動 | exponential backoff で対応（上位構成と同一） |
-| watch + Pub/Sub | ローカルツールでの導入難易度 | 将来スコープとして保留 |
+| 項目            | 内容                         | 対応方針                                           |
+| --------------- | ---------------------------- | -------------------------------------------------- |
+| セッション管理  | access_token の平文保存      | ローカル専用前提で許容。SaaS化時は暗号化必須       |
+| SSEの接続管理   | 長時間ジョブ中の切断         | クライアント側で再接続実装（EventSource 標準機能） |
+| Gmail API quota | 超過時の挙動                 | exponential backoff で対応（上位構成と同一）       |
+| watch + Pub/Sub | ローカルツールでの導入難易度 | 将来スコープとして保留                             |
 
 ---
 
 ## 14. 次アクション
 
-| # | アクション | 目的 |
-|---|------------|------|
-| 1 | GitHub に `gmail-manager` リポジトリ作成・clone | 作業環境準備 |
-| 2 | `bun create hono` + Vite React プロジェクト作成 | 環境構築確認 |
-| 3 | Google Cloud Console で OAuth クライアント作成・Gmail スコープ追加 | PoC前提条件 |
-| 4 | `/api/auth/google` → callback → sessions保存 PoC | 認証フロー検証 |
-| 5 | accessToken で `gmail.users.messages.list` を叩けるか確認 | PoC完了判定 |
-| 6 | Drizzle ORM でスキーマ確定・マイグレーション | 実装着手 |
+| #   | アクション                                                         | 目的           |
+| --- | ------------------------------------------------------------------ | -------------- |
+| 1   | GitHub に `gmail-manager` リポジトリ作成・clone                    | 作業環境準備   |
+| 2   | `bun create hono` + Vite React プロジェクト作成                    | 環境構築確認   |
+| 3   | Google Cloud Console で OAuth クライアント作成・Gmail スコープ追加 | PoC前提条件    |
+| 4   | `/api/auth/google` → callback → sessions保存 PoC                   | 認証フロー検証 |
+| 5   | accessToken で `gmail.users.messages.list` を叩けるか確認          | PoC完了判定    |
+| 6   | Drizzle ORM でスキーマ確定・マイグレーション                       | 実装着手       |
 
 ---
 
@@ -375,11 +379,11 @@ https://www.googleapis.com/auth/gmail.modify
 
 ### 上位構成から削除した要素と理由
 
-| 削除項目 | 理由 |
-|----------|------|
-| Supabase（PostgreSQL + Auth + Realtime） | Dockerが必要・起動コスト大・ローカルツールには過剰 |
-| Next.js App Router | APIが2本のみ・Honoで十分 |
-| 4層アーキテクチャ（UseCase / Service / Repository / Adapter） | 処理フローが単純・2層で可読性が高い |
-| Supabase Realtime | SSEで同等体験を外部依存なしで実現可能 |
+| 削除項目                                                      | 理由                                               |
+| ------------------------------------------------------------- | -------------------------------------------------- |
+| Supabase（PostgreSQL + Auth + Realtime）                      | Dockerが必要・起動コスト大・ローカルツールには過剰 |
+| Next.js App Router                                            | APIが2本のみ・Honoで十分                           |
+| 4層アーキテクチャ（UseCase / Service / Repository / Adapter） | 処理フローが単純・2層で可読性が高い                |
+| Supabase Realtime                                             | SSEで同等体験を外部依存なしで実現可能              |
 
 ---

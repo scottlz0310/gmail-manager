@@ -169,7 +169,7 @@ sync_state (
 
 ```typescript
 interface MailQuery {
-  category?: 'promotions' | 'social' | 'updates';
+  category?: "promotions" | "social" | "updates";
   olderThanDays?: number;
   isUnread?: boolean;
   label?: string;
@@ -355,24 +355,24 @@ Gmail API理論値: 最大50件/秒（quota: 250 units/秒、batchDelete = 5 uni
 
 ## 13. リスク / 未決事項
 
-| 項目                         | 内容                               | 対応方針                   |
-| ---------------------------- | ---------------------------------- | -------------------------- |
-| Supabase Auth × Gmail scope  | accessToken 取得方法の詳細         | PoC で確認（論点3）        |
-| Gmail API quota              | 超過時の挙動                       | exponential backoff で対応 |
-| watch + Pub/Sub              | ローカルツールでの導入難易度       | 将来スコープとして保留     |
+| 項目                        | 内容                         | 対応方針                   |
+| --------------------------- | ---------------------------- | -------------------------- |
+| Supabase Auth × Gmail scope | accessToken 取得方法の詳細   | PoC で確認（論点3）        |
+| Gmail API quota             | 超過時の挙動                 | exponential backoff で対応 |
+| watch + Pub/Sub             | ローカルツールでの導入難易度 | 将来スコープとして保留     |
 
 ---
 
 ## 14. 次アクション
 
-| #  | アクション                                                         | 目的           |
-| -- | ------------------------------------------------------------------ | -------------- |
-| 1  | GitHub に `gmail-manager` リポジトリ作成・clone                    | 作業環境準備   |
-| 2  | `supabase start` + Next.js プロジェクト作成                        | 環境構築確認   |
-| 3  | Google Cloud Console で OAuth クライアント作成・Gmail スコープ追加 | PoC前提条件    |
-| 4  | Supabase Auth で Google OAuth → Gmail accessToken 取得 PoC         | 認証フロー検証 |
-| 5  | accessToken で `gmail.users.messages.list` を叩けるか確認          | PoC完了判定    |
-| 6  | Drizzle ORM でスキーマ確定・マイグレーション                       | 実装着手       |
+| #   | アクション                                                         | 目的           |
+| --- | ------------------------------------------------------------------ | -------------- |
+| 1   | GitHub に `gmail-manager` リポジトリ作成・clone                    | 作業環境準備   |
+| 2   | `supabase start` + Next.js プロジェクト作成                        | 環境構築確認   |
+| 3   | Google Cloud Console で OAuth クライアント作成・Gmail スコープ追加 | PoC前提条件    |
+| 4   | Supabase Auth で Google OAuth → Gmail accessToken 取得 PoC         | 認証フロー検証 |
+| 5   | accessToken で `gmail.users.messages.list` を叩けるか確認          | PoC完了判定    |
+| 6   | Drizzle ORM でスキーマ確定・マイグレーション                       | 実装着手       |
 
 ---
 
@@ -388,12 +388,12 @@ Gmail API理論値: 最大50件/秒（quota: 250 units/秒、batchDelete = 5 uni
 
 ### 廃止した選択肢と理由
 
-| 廃止項目                      | 理由                                                   |
-| ----------------------------- | ------------------------------------------------------ |
-| GAS                           | Gmail API 直接利用の方が高速・柔軟                     |
-| SQLite                        | Supabase採用でPostgreSQL移行コスト不要に               |
-| TUIフェーズ（ink / blessed）  | WebUI一本化でシンプル化。`blessed` はメンテナンス停止  |
-| 非同期ジョブ（BullMQ）        | 同期APIで十分な処理速度（GAS比20倍）                   |
-| Prisma                        | Drizzle ORM の方がDocker環境・軽量ツールに適合         |
+| 廃止項目                     | 理由                                                  |
+| ---------------------------- | ----------------------------------------------------- |
+| GAS                          | Gmail API 直接利用の方が高速・柔軟                    |
+| SQLite                       | Supabase採用でPostgreSQL移行コスト不要に              |
+| TUIフェーズ（ink / blessed） | WebUI一本化でシンプル化。`blessed` はメンテナンス停止 |
+| 非同期ジョブ（BullMQ）       | 同期APIで十分な処理速度（GAS比20倍）                  |
+| Prisma                       | Drizzle ORM の方がDocker環境・軽量ツールに適合        |
 
 ---
