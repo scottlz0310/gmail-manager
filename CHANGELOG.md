@@ -17,6 +17,7 @@
 
 - OAuth2 クライアント生成およびトークン更新ロジックを `server/src/services/googleAuth.ts` にモジュール化・共通化（#143）。
 - 自分用のローカル利用・BYO クライアント・External/Testing 継続の OAuth 運用方針を明文化（#147）。同意画面とテストユーザーの設定、完全削除権限、トークン失効時の再ログインを README に追記し、初期設計の OAuth 節を現行実装に合わせて修正。
+- `renovate.json` の `extends` から、中央プリセットで解除済みの非推奨プリセット（`options/automerge`・`options/schedule`・`options/security`）への参照を削除した。スケジュール・待機期間・自動マージ等は中央側で既に解除されているため更新の挙動は変わらず、Dependency Dashboard の警告表示が消える。
 
 ## [0.2.0] - 2026-03-27
 
