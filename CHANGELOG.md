@@ -4,6 +4,7 @@
 
 ### 追加
 
+- `bunfig.toml` に `minimumReleaseAge = 259200`（3 日）を追加し、公開から 3 日未満の版を bun が新規に解決しないようにした。lock file maintenance は Renovate の minimumReleaseAge を回避するための防御で、frozen install には影響しない。
 - OAuth セッションの有効期限間近（残り5分未満）でのリフレッシュトークンによるアクセストークン自動更新を追加（#143）。Google OAuth2 クライアントを DI 可能な構成とし、トークンローテーション・失効・一時エラー時のセッション維持をテスト。
 - 無人運用・最小権限の設計方針（CI に認証情報を配置しないセキュリティ境界、常駐バッチ環境の要件、`batchDelete` と `gmail.modify` のトレードオフ）を `docs/gmail-manager.md` に明文化（#143）。
 - OAuth 利用確認を毎月 GitHub の運用 Issue で通知する workflow と手動実行・同月の重複投稿防止を追加（#142）。Google の認証情報を CI に保存せず、期限不明時の確認手順と実行履歴を整備。
